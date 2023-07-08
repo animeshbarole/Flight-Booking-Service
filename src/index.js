@@ -6,11 +6,16 @@ const apirouter = require('./routes')
 const app = express();
 
 
+
+
+app.use(express.json()); //Convert res parameters to json file .
+app.use(express.urlencoded({ extended : true }));  //it is used to read uncoding digits
+
 app.use('/api',apirouter);
 
 
 
 app.listen(ServerConfig.PORT,() =>{
     console.log(`SuccessFull Started the Server on port :${ServerConfig.PORT}`);
-    Logger.info("Successfully Started the Server");
+    
 });
