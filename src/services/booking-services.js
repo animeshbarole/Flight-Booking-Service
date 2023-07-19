@@ -6,28 +6,41 @@ const {BookingRepository} =require('../repositories');
 const db = require('../models');
 const AppError = require('../utils/errors/app-error');
 
-async function createBooking(data)
-{
+const bookingRepository = new BookingRepository();
 
-     return new Promise((resolve,reject) =>{
-         
+async function createBooking(data)
+{  
       
-            const result  = db.sequelize.transaction(async function bookingImpl(t)
-            {
-                
-                const flight = await axios.get(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${data.flightID}`);
-                const flightData =flight.data.data;
-                if(data.noOfSeats > flightData.totalSeats)
-                { 
-                   
-                 reject( new AppError('Not Enough Seats Available ',StatusCodes.BAD_REQUEST));
-     
-                }
+    const transaction  = await db.sequelize.transaction();
+     try {
+            const flight = await axios.get(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${data.flightID}`);
+            const flightData =flight.data.data;
+            if(data.noOfSeats > flightData.totalSeats)
+            { 
                
-                 resolve( true);
-            });      
+               throw new AppError('Not Enough Seats Available ',StatusCodes.BAD_REQUEST);
+ 
+            }
+            //If we can book the flights lets compute it ..
+           
+            const totalBillingAmount  = data.noOfSeats * flightData.price;
+            console.log(totalBillingAmount);
+            const bookingPayload = {...data,totalCost:totalBillingAmount};
+            const booking  =  await bookingRepository.create(bookingPayload,transaction);
+            
+            await axios.patch(`${ServerConfig.FLIGHT_SERVICE}/api/v1/flights/${data.flightID}/seats`,{
+                seats:data.noOfSeats,
+            });
+            await transaction.commit();
+           
+            return booking;
              
-       })
+         
+          
+     } catch (error) {
+          await  transaction.rollback();
+          throw error;
+     }
     
 }
 
