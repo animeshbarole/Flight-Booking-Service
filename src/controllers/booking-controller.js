@@ -38,7 +38,44 @@ async function createBooking(req,res){
     
 }
 
+async function makePayment(req,res){
+
+ 
+    
+   try { 
+
+       const response  = await BookingServices.makePayment({
+            
+          totalCost:req.body.totalCost,
+          userID : req.body.userID,
+          bookingID : req.body.bookingID,
+
+         
+           
+       });
+
+       SuccessResponse.data = response;
+
+       return res.
+                 status(StatusCodes.OK)
+                .json( SuccessResponse );
+
+      
+   } catch (error) {
+
+      ErrorResponse.error = error 
+      return res
+                .status(error.statusCode) //Error has Self Property statusCode we simply not write again we just
+                                          //Pass it with statusCode
+                .json(ErrorResponse);
+      
+   }
+
+}
+
+
 
 module.exports ={
-     createBooking
+     createBooking,
+     makePayment
 }
