@@ -5,6 +5,7 @@ const apirouter = require('./routes')
 
 const app = express();
 
+const CRON = require('./utils/common/cron-jobs')
 
 
 
@@ -17,5 +18,5 @@ app.use('/api',apirouter);
 
 app.listen(ServerConfig.PORT,() =>{
     console.log(`SuccessFull Started the Server on port :${ServerConfig.PORT}`);
-    
+    CRON();
 });
