@@ -57,7 +57,7 @@ async function makePayment(data)
         const bookingDetails = await bookingRepository.get(data.bookingID,transaction);
      
           console.log(bookingDetails.totalCost);
-           
+         console.log(data.totalCost);
            
            if(bookingDetails.status===CANCELLED)
           {
@@ -71,12 +71,12 @@ async function makePayment(data)
              await cancelBoooking(data.bookingID);
              throw new AppError('The Booking is Expired ',StatusCodes.BAD_REQUEST);  
            }
-        if(bookingDetails.totalCost!==data.totalCost)
+        if(bookingDetails.totalCost!=data.totalCost)
         {
             throw new AppError('The Amount of Payment Doesnt Matach ',StatusCodes.BAD_REQUEST);
         }
 
-        if(bookingDetails.userID!==data.userID)
+        if(bookingDetails.userID!=data.userID)
         {
             throw new AppError('The User Corresponding to the Booking does not match',StatusCodes.BAD_REQUEST);   
         }
